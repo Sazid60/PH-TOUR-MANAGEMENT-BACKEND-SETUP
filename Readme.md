@@ -286,7 +286,7 @@ let server: Server
 
 const startServer = async () => {
     try {
-        await mongoose.connect("mongodb+srv://sazid-mongo:sazid-mongo@cluster0.cjbmdks.mongodb.net/tour-management?retryWrites=true&w=majority&appName=Cluster0");
+        await mongoose.connect("");
         console.log("Connected To MongoDb")
         server = app.listen(5000, () => {
             console.log("Server is Running On Port 5000")
@@ -363,4 +363,83 @@ process.on("uncaughtException", (err) => {
 // throw new Error("Maamah I'm Uncaught exception error ")
 
 
+```
+
+## 25-11 Setting Up ES Lint and Fix Errors Using Commands
+
+[Typescript Eslint Setup](https://typescript-eslint.io/getting-started)
+
+
+- Install Eslint 
+
+```bash 
+npm install --save-dev eslint @eslint/js typescript typescript-eslint
+```
+
+- Configure the eslint inside eslint.config.mjs
+
+```mjs
+// @ts-check
+
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+    eslint.configs.recommended,
+    tseslint.configs.recommended,
+);
+
+```
+- Comment the `tseslint.configs.recommended,`  and add this two instead
+
+```mjs 
+    tseslint.configs.stylistic,
+    tseslint.configs.strict,
+
+```
+
+- Set The Rules 
+
+```mjs
+// @ts-check
+
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+    eslint.configs.recommended,
+    // tseslint.configs.recommended,
+    tseslint.configs.stylistic,
+    tseslint.configs.strict,
+    {
+        rules: {
+            "no-console": "warn"
+        }
+    }
+
+);
+```
+
+- For checking deployment 
+
+```bash 
+npx eslint .
+
+```
+
+- For lint checking only the sec folder 
+
+```bash 
+npx eslint ./src
+```
+
+- Lets make a script for this in package.json file 
+
+```json
+
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
+    "lint" : "npx eslint ./src",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
 ```
