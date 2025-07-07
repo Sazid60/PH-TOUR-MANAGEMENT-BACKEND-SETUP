@@ -208,3 +208,8 @@ npm i express mongoose cors zod dotenv jsonwebtoken
 npm i -D ts-node-dev @types/express @types/cors @types/dotenv @types/jsonwebtoken
 
 ```
+
+## 25-8 Software Design Patterns, MVC vs Modular Pattern
+- In MVC pattern This happens like View -> Controller -> Model -> Then model communicates with database -> sends response to view through controller 
+- For large scale project MVC pattern will make hassle so we will go for modular mvc  pattern which will divide the features in different segments
+-  
