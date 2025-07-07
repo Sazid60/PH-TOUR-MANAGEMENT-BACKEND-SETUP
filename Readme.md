@@ -171,3 +171,40 @@ git init
 ```bash 
 git checkout -b development  
 ```
+- Initialize Npm
+
+```bash 
+npm init -y
+```
+
+- Install Typescript
+
+```bash 
+npm i -D typescript
+```
+- Initialize Typescript 
+
+```bash 
+tsc --init
+```
+
+- Set RootDir and OutDir inside tsconfig.json 
+
+```bash 
+  "rootDir": "./src",
+   "outDir": "./dist",
+```
+
+- Install the main dependencies 
+
+```bash 
+npm i express mongoose cors zod dotenv jsonwebtoken
+
+```
+
+- Install all the type declarations and dev dependencies 
+
+```bash 
+npm i -D ts-node-dev @types/express @types/cors @types/dotenv @types/jsonwebtoken
+
+```
