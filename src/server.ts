@@ -3,16 +3,17 @@ import { Server } from "http"
 
 import mongoose from "mongoose"
 import app from "./app";
+import { envVars } from "./app/config/env";
 
 let server: Server
 
 
 const startServer = async () => {
     try {
-        await mongoose.connect("");
+        await mongoose.connect(envVars.DB_URL);
         console.log("Connected To MongoDb")
-        server = app.listen(5000, () => {
-            console.log("Server is Running On Port 5000")
+        server = app.listen(envVars.PORT, () => {
+            console.log(`Server is Running On Port ${envVars.PORT}`)
         })
     } catch (error) {
         console.log(error)
@@ -85,3 +86,5 @@ process.on("uncaughtException", (err) => {
 
 // TESTING uncaughtException
 // throw new Error("Maamah I'm Uncaught exception error ")
+
+
