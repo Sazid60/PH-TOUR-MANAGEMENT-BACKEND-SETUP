@@ -208,3 +208,159 @@ npm i express mongoose cors zod dotenv jsonwebtoken
 npm i -D ts-node-dev @types/express @types/cors @types/dotenv @types/jsonwebtoken
 
 ```
+
+## 25-8 Software Design Patterns, MVC vs Modular Pattern
+- In MVC pattern This happens like View -> Controller -> Model -> Then model communicates with database -> sends response to view through controller 
+- For large scale project MVC pattern will make hassle so we will go for modular mvc  pattern which will divide the features in different segments
+
+## 25-9 Setting Up Server and App
+
+- Create server.ts
+
+```ts 
+import { Server } from "http"
+
+import mongoose from "mongoose"
+import app from "./app";
+
+let server: Server
+
+
+const startServer = async () => {
+    try {
+        await mongoose.connect("")
+        server = app.listen(5000, () => {
+            console.log("Server is Running On Port 5000")
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+startServer()
+
+```
+- Create app.ts file 
+
+```ts 
+
+import express, { Request, Response } from "express"
+
+const app = express()
+
+
+app.get("/", (req: Request, res: Response) => {
+    res.status(200).json({
+        message: "Welcome To Tour Management System"
+    })
+})
+
+export default app
+```
+
+- add script to run the project 
+
+```json
+  "scripts": {
+    "dev" : "ts-node-dev --respawn --transpile-only ./src/server.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+```
+
+## 25-10 Error Handlers for Server, UnhandledRejection, UncaughtException
+
+- There are three types of server error
+  1. **UnhandledRejection** : Resamples promise rejection Error. If We miss any using try catch, it will be caught in here. It will gradually shut down the server and prevents to shut down instantly (crash)
+  2. **UncaughtException** : It Like we have console logged a variable that we have never declared. This will give us error if we do not handle with try catch it will be handled by uncaughtException. that error that is not related to promise and and has not been handled using try catch. 
+  3. **Signal Termination/ Sig Term** : When project is deployed in cloud platform like aws vercel or any, If the scenario is like the platform sends signal to kill the server for maintenance purpose we will gracefully shut down the server and this is called signal termination. 
+
+- server.ts
+```ts 
+import { Server } from "http"
+
+import mongoose from "mongoose"
+import app from "./app";
+
+let server: Server
+
+
+const startServer = async () => {
+    try {
+        await mongoose.connect("mongodb+srv://sazid-mongo:sazid-mongo@cluster0.cjbmdks.mongodb.net/tour-management?retryWrites=true&w=majority&appName=Cluster0");
+        console.log("Connected To MongoDb")
+        server = app.listen(5000, () => {
+            console.log("Server is Running On Port 5000")
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+startServer()
+
+process.on("SIGTERM", (err) => {
+    console.log("Signal Termination Happened...! Server Is Shutting Down !", err)
+    if (server) {
+        server.close(() => {
+            process.exit(1)
+        })
+    }
+
+    process.exit(1)
+
+})
+
+process.on("SIGINT", () => {
+    console.log("I am manually Closing the server! Server Is Shutting Down !")
+
+    // if express server is on and unhandled rejection happens close the express server using server.close()
+    // then close the node server using process.exit(1)
+    if (server) {
+        server.close(() => {
+            process.exit(1)
+        })
+    }
+
+    process.exit(1)
+
+})
+process.on("unhandledRejection", () => {
+    console.log("Unhandled Rejection Happened...! Server Is Shutting Down !")
+
+    // if express server is on and unhandled rejection happens close the express server using server.close()
+    // then close the node server using process.exit(1)
+    if (server) {
+        server.close(() => {
+            process.exit(1)
+        })
+    }
+
+    process.exit(1)
+
+})
+
+process.on("uncaughtException", (err) => {
+    console.log("Uncaught Exception Happened...! Server Is Shutting Down !", err)
+
+    // if express server is on and unhandled rejection happens close the express server using server.close()
+    // then close the node server using process.exit(1)
+    if (server) {
+        server.close(() => {
+            process.exit(1)
+        })
+    }
+
+    process.exit(1)
+
+})
+
+//  test unhandled rejection
+
+// Promise.reject(new Error("Opps! Unhandled Rejection Happened !....Forgot To Catch error ! "))
+
+
+// TESTING uncaughtException
+// throw new Error("Maamah I'm Uncaught exception error ")
+
+
+```
