@@ -212,4 +212,57 @@ npm i -D ts-node-dev @types/express @types/cors @types/dotenv @types/jsonwebtoke
 ## 25-8 Software Design Patterns, MVC vs Modular Pattern
 - In MVC pattern This happens like View -> Controller -> Model -> Then model communicates with database -> sends response to view through controller 
 - For large scale project MVC pattern will make hassle so we will go for modular mvc  pattern which will divide the features in different segments
--  
+
+## 25-9 Setting Up Server and App
+
+- Create server.ts
+
+```ts 
+import { Server } from "http"
+
+import mongoose from "mongoose"
+import app from "./app";
+
+let server: Server
+
+
+const startServer = async () => {
+    try {
+        await mongoose.connect("")
+        server = app.listen(5000, () => {
+            console.log("Server is Running On Port 5000")
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+startServer()
+
+```
+- Create app.ts file 
+
+```ts 
+
+import express, { Request, Response } from "express"
+
+const app = express()
+
+
+app.get("/", (req: Request, res: Response) => {
+    res.status(200).json({
+        message: "Welcome To Tour Management System"
+    })
+})
+
+export default app
+```
+
+- add script to run the project 
+
+```json
+  "scripts": {
+    "dev" : "ts-node-dev --respawn --transpile-only ./src/server.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+```
