@@ -286,7 +286,7 @@ let server: Server
 
 const startServer = async () => {
     try {
-        await mongoose.connect("mongodb+srv://sazid-mongo:sazid-mongo@cluster0.cjbmdks.mongodb.net/tour-management?retryWrites=true&w=majority&appName=Cluster0");
+        await mongoose.connect("");
         console.log("Connected To MongoDb")
         server = app.listen(5000, () => {
             console.log("Server is Running On Port 5000")
@@ -362,5 +362,216 @@ process.on("uncaughtException", (err) => {
 // TESTING uncaughtException
 // throw new Error("Maamah I'm Uncaught exception error ")
 
+
+```
+
+## 25-11 Setting Up ES Lint and Fix Errors Using Commands
+
+[Typescript Eslint Setup](https://typescript-eslint.io/getting-started)
+
+
+- Install Eslint 
+
+```bash 
+npm install --save-dev eslint @eslint/js typescript typescript-eslint
+```
+
+- Configure the eslint inside eslint.config.mjs
+
+```mjs
+// @ts-check
+
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+    eslint.configs.recommended,
+    tseslint.configs.recommended,
+);
+
+```
+- Comment the `tseslint.configs.recommended,`  and add this two instead
+
+```mjs 
+    tseslint.configs.stylistic,
+    tseslint.configs.strict,
+
+```
+
+- Set The Rules 
+
+```mjs
+// @ts-check
+
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+    eslint.configs.recommended,
+    // tseslint.configs.recommended,
+    tseslint.configs.stylistic,
+    tseslint.configs.strict,
+    {
+        rules: {
+            "no-console": "warn"
+        }
+    }
+
+);
+```
+
+- For checking deployment 
+
+```bash 
+npx eslint .
+
+```
+
+- For lint checking only the sec folder 
+
+```bash 
+npx eslint ./src
+```
+
+- Lets make a script for this in package.json file 
+
+```json
+
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
+    "lint" : "npx eslint ./src",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+```
+
+## 25-12 Setting Up Environment Variables
+
+- src -> app -> env.ts
+
+```ts 
+import dotenv from "dotenv"
+
+dotenv.config()
+
+interface EnvConfig {
+    PORT: string
+    DB_URL: string,
+    NODE_ENV: "development" | "production"
+}
+
+const loadEnvVariables = (): EnvConfig => {
+    const requiredEnvVariables: string[] = ["PORT", "DB_URL", "NODE_ENV"];
+
+    requiredEnvVariables.forEach(key => {
+        if (!process.env[key]) {
+            throw new Error(`Missing required environment variable ${key}`);
+        }
+    });
+
+    return {
+        PORT: process.env.PORT as string,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        DB_URL: process.env.DB_URL!,
+        NODE_ENV: process.env.NODE_ENV as "development" | "production",
+    };
+};
+
+
+export const envVars = loadEnvVariables()
+
+
+```
+
+- server.ts 
+
+```ts
+/* eslint-disable no-console */
+import { Server } from "http"
+
+import mongoose from "mongoose"
+import app from "./app";
+import { envVars } from "./app/config/env";
+
+let server: Server
+
+
+const startServer = async () => {
+    try {
+        await mongoose.connect(envVars.DB_URL);
+        console.log("Connected To MongoDb")
+        server = app.listen(envVars.PORT, () => {
+            console.log(`Server is Running On Port ${envVars.PORT}`)
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+startServer()
+
+process.on("SIGTERM", (err) => {
+    console.log("Signal Termination Happened...! Server Is Shutting Down !", err)
+    if (server) {
+        server.close(() => {
+            process.exit(1)
+        })
+    }
+
+    process.exit(1)
+
+})
+
+process.on("SIGINT", () => {
+    console.log("I am manually Closing the server! Server Is Shutting Down !")
+
+    // if express server is on and unhandled rejection happens close the express server using server.close()
+    // then close the node server using process.exit(1)
+    if (server) {
+        server.close(() => {
+            process.exit(1)
+        })
+    }
+
+    process.exit(1)
+
+})
+process.on("unhandledRejection", () => {
+
+    console.log("Unhandled Rejection Happened...! Server Is Shutting Down !")
+
+    // if express server is on and unhandled rejection happens close the express server using server.close()
+    // then close the node server using process.exit(1)
+    if (server) {
+        server.close(() => {
+            process.exit(1)
+        })
+    }
+
+    process.exit(1)
+
+})
+
+process.on("uncaughtException", (err) => {
+    console.log("Uncaught Exception Happened...! Server Is Shutting Down !", err)
+
+    // if express server is on and unhandled rejection happens close the express server using server.close()
+    // then close the node server using process.exit(1)
+    if (server) {
+        server.close(() => {
+            process.exit(1)
+        })
+    }
+
+    process.exit(1)
+
+})
+
+//  test unhandled rejection
+
+// Promise.reject(new Error("Opps! Unhandled Rejection Happened !....Forgot To Catch error ! "))
+
+
+// TESTING uncaughtException
+// throw new Error("Maamah I'm Uncaught exception error ")
 
 ```
